@@ -311,10 +311,10 @@ def finishVoting(message: telebot.types.Message):
     bot.reply_to(message, f'The voting stage has concluded! The winner is {library.formatBookVolume(submissions[winner])}. See the vote table above to see how users voted.')
 
 
-@bot.message_handler(func = lambda m : True)
-def tester(message: telebot.types.Message):
-    print(message)
-    return
+# @bot.message_handler(func = lambda m : True)
+# def tester(message: telebot.types.Message):
+#     print(message)
+#     return
 
 
 # Initialize infinity polling to enable the bot
