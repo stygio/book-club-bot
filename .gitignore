@@ -1,0 +1,6 @@
+__pycache__/
+environment/
+.env
+fonts/*
+images/*
+*.db
