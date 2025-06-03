@@ -62,11 +62,21 @@ def commandAllowed(message: telebot.types.Message, requirements: types.CommandRe
 @bot.message_handler(commands=['instructions'])
 def printInstructions(message: telebot.types.Message):
     instructionsMsg = "I am the *Book Club Bot* developed by *stygio* ([see here for more info](https://github.com/stygio/book-club-bot)).\n\n"
-    instructionsMsg += "Once the admin creates a new meeting, I operate in three stages: submit,  vote and organized.\n\n"
-    instructionsMsg += "During the *submit* stage, users submit 1 book for the active meeting. You can repeat this process and choose a different book if this phase is still ongoing. At the end of this phase, a submission report will be generated in PDF format with an overview of the submitted books.\n\n"
-    instructionsMsg += "During the *vote* stage, users vote on 3 books submitted for the active meeting in order of preferrence. A winner is chosen using [Ranked-choice voting](https://ballotpedia.org/Ranked-choice_voting). You can repeat this process and change your vote if this phase is still ongoing. At the end of this phase, a table of votes will be generated and a winner will be chosen for the active meeting.\n\n"
-    instructionsMsg += "The *organized* stage signifies a book has been chosen.\n\n"
-    instructionsMsg += "For a list of possible commands, type /commands in a private chat with me."
+
+    instructionsMsg += "Once the admin creates a new meeting, there are two stages: submitting books and voting on books.\n\n"
+
+    instructionsMsg += "During the *submit* stage, users submit 1 book for the active meeting.\n"
+    instructionsMsg += "Find your book using the `/search <search query>` command. Once it appears in the results, choose it using the `/choose <number>` command.\n"
+    instructionsMsg += "You can repeat this process and choose a different book if this phase is still ongoing.\n"
+    instructionsMsg += "At the end of this phase, a submission report will be generated in PDF format with an overview of the submitted books.\n\n"
+
+    instructionsMsg += "During the *vote* stage, users vote on 3 books submitted for the active meeting in order of preferrence.\n"
+    instructionsMsg += "Vote on books in order of preferrence using the `/vote <number> <number> <number>` command.\n"
+    instructionsMsg += "A winner is chosen using [Ranked-choice voting](https://ballotpedia.org/Ranked-choice_voting).\n"
+    instructionsMsg += "You can repeat this process and change your vote if this phase is still ongoing.\n"
+    instructionsMsg += "At the end of this phase, a table of votes will be generated and a winner will be chosen for the active meeting.\n\n"
+
+    instructionsMsg += "The admin has some additional commands available to them. For a full list of commands with explanations, type `/commands` in a private chat with me."
 
     bot.reply_to(message, instructionsMsg)
 
@@ -81,15 +91,15 @@ def printCommands(message: telebot.types.Message):
         return
 
     commandsMsg = "Here is a list of valid commands and their requirements.\n\n"
-    commandsMsg += "(a: admin only, m: active meeting required, p: private chat, g: group chat, s: submissions stage, v: voting stage)\n\n"
+    commandsMsg += "Most commands have a list of tags (a: admin only, m: active meeting required, p: private chat, g: group chat, s: submissions stage, v: voting stage)\n\n"
     commandsMsg += "*instructions*: Prints a message with an overview of how I operate.\n\n"
     commandsMsg += "*commands* (p): Prints this message with possible commands.\n\n"
     commandsMsg += "*checkStatus* (g): Prints the current status of the meeting.\n\n"
     commandsMsg += "*newMeeting* (a/g): Initiates a new meeting.\n\n"
-    commandsMsg += "*search* (m/p/s): Search the Google Books collection for a book. I will return up to 10 results. If you don't find your book, please try again with a different query. You can enter search terms directly or use the (title, author, isbn) tags to be more specific. Examples:\n`[/search tolkien lord rings]`\n`[/search title:\"city of thieves\" author:\"david benioff\"]`\n`[/search isbn:9788373899292]`\n\n"
-    commandsMsg += "*choose* (m/p/s): Choose one of the options I returned based on your search using its number in the list of results. Example: `[/choose 4]`\n\n"
+    commandsMsg += "*search* (m/p/s): Search the Google Books collection for a book. I will return up to 10 results. If you don't find your book, please try again with a different query. You can enter search terms directly or use the (title, author, isbn) tags to be more specific. Examples:\n`/search tolkien lord rings`\n`/search title:\"city of thieves\" author:\"david benioff\"`\n`/search isbn:9788373899292`\n\n"
+    commandsMsg += "*choose* (m/p/s): Choose one of the options I returned based on your search using its number in the list of results. Example:\n`/choose 4`\n\n"
     commandsMsg += "*finishSubmissions* (a/m/g/s): Complete the submit stage and begin the vote stage.\n\n"
-    commandsMsg += "*vote* (m/p/v): Vote on 3 books in order of preferrence based on their numbers in the submission report. Example: `[/vote 5 10 2]`\n\n"
+    commandsMsg += "*vote* (m/p/v): Vote on 3 books in order of preferrence based on their numbers in the submission report. Example:\n`/vote 5 10 2`\n\n"
     commandsMsg += "*finishVoting* (a/m/g/v): Complete the vote stage."
 
     bot.reply_to(message, commandsMsg)
