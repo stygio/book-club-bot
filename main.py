@@ -96,7 +96,7 @@ def printCommands(message: telebot.types.Message):
     commandsMsg += "*commands* (p): Prints this message with possible commands.\n\n"
     commandsMsg += "*checkStatus* (g): Prints the current status of the meeting.\n\n"
     commandsMsg += "*newMeeting* (a/g): Initiates a new meeting.\n\n"
-    commandsMsg += "*search* (m/p/s): Search the Google Books collection for a book. I will return up to 10 results. If you don't find your book, please try again with a different query. You can enter search terms directly or use the (title, author, isbn) tags to be more specific. Examples:\n`/search tolkien lord rings`\n`/search title:\"city of thieves\" author:\"david benioff\"`\n`/search isbn:9788373899292`\n\n"
+    commandsMsg += "*search* (m/p/s): Search the Google Books collection for a book. I will return up to 10 results. If you don't find your book, please try again with a different query.\nExample:\n`/search tolkien lord rings`\n\n"
     commandsMsg += "*choose* (m/p/s): Choose one of the options I returned based on your search using its number in the list of results. Example:\n`/choose 4`\n\n"
     commandsMsg += "*finishSubmissions* (a/m/g/s): Complete the submit stage and begin the vote stage.\n\n"
     commandsMsg += "*vote* (m/p/v): Vote on 3 books in order of preferrence based on their numbers in the submission report. Example:\n`/vote 5 10 2`\n\n"

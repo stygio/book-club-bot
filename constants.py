@@ -15,11 +15,11 @@ def loadSecrets() -> dict[str, str]:
 secrets = loadSecrets()
 
 MAX_SEARCH_RESULTS = 10
+RETRIES = 10
+RETRY_DELAY = 2
+RETRYABLE = (429, 500, 502, 503, 504)
 
 regex = {
-    'SUBMIT_TITLE': r"title:\"([\w\s]+)\"",
-    'SUBMIT_AUTHOR': r"author:\"([\w\s]+)\"",
-    'SUBMIT_ISBN': r"isbn:([\d]+)",
     'CHOOSE': r"/choose (\d+)",
     'VOTE': r"/vote (\d+) (\d+) (\d+)",
 }

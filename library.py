@@ -1,40 +1,12 @@
-import requests
-import re
-import os
-
+import requests, re, os, time
 import customTypes as types
-from constants import regex, MAX_SEARCH_RESULTS
+from constants import MAX_SEARCH_RESULTS, RETRIES, RETRY_DELAY, RETRYABLE
 
 
-# Process the user input string to build a search string matching the google books API specifications
+# Process the user input string to build a search string
 def parseSearchTerms(input: str):
-    searchTerms = {}
     input = re.sub(r"(/search )", '', input)
-
-    titleMatch = re.search(regex['SUBMIT_TITLE'], input)
-    if titleMatch:
-        titleGroup = titleMatch.group(1)
-        searchTerms['intitle'] = re.sub(r"(\s+)", '+', titleGroup)
-        input = re.sub(regex['SUBMIT_TITLE'], '', input)
-
-    authorMatch = re.search(regex['SUBMIT_AUTHOR'], input)
-    if authorMatch:
-        authorGroup = authorMatch.group(1)
-        searchTerms['inauthor'] = re.sub(r"(\s+)", '+', authorGroup)
-        input = re.sub(regex['SUBMIT_AUTHOR'], '', input)
-
-    isbnMatch = re.search(regex['SUBMIT_ISBN'], input)
-    if isbnMatch:
-        searchTerms['isbn'] = isbnMatch.group(1)
-        input = re.sub(regex['SUBMIT_ISBN'], '', input)
-
-    searchString = ''
-    generalTerms = re.sub(r"(\s+)", '+', input.strip())
-    if generalTerms:
-        searchString += generalTerms + '+'
-    if len(searchTerms) > 0:
-        searchString += '+'.join(f'{k}:{v}' for [k, v] in searchTerms.items())
-
+    searchString = re.sub(r"(\s+)", ' ', input.strip())
     return searchString
 
 
@@ -60,25 +32,45 @@ def processBookVolumes(items: dict) -> types.BookVolumes:
     return results
 
 
-# Find books based on user input
-def findBookVolumes(input: str) -> tuple[int, types.BookVolumes]:
+def queryGoogleBooks(input: str) -> dict:
     queryParams = {
-        'q': parseSearchTerms(input),
+        'q': input,
         'maxResults': MAX_SEARCH_RESULTS,
         'orderBy': 'relevance',
+        'printType': 'books',
         'key': os.getenv('GOOGLE_BOOKS_API_KEY')
     } 
-    r = requests.request(method = 'GET', url = 'https://www.googleapis.com/books/v1/volumes', params = queryParams)
-    if r.status_code != 200:
-        print(f"Request to Google Books API failed with: {r.status_code} {r.reason}")
-        return 0, []
+    empties = 0
+    for _ in range(RETRIES):
+        try:
+            r = requests.get('https://www.googleapis.com/books/v1/volumes', params = queryParams, timeout = 10)
+        except requests.RequestException as e:
+            print(f'Google Books request error: {e}')
+            time.sleep(RETRY_DELAY)
+            continue
+        if r.status_code == 200:
+            data = r.json()
+            if data.get('items'):
+                return data
+            empties += 1
+            if empties >= 3:       # consistently empty: probably a real no-result
+                return data
+        elif r.status_code not in RETRYABLE:
+            raise RuntimeError(f'Request to Google Books API failed with {r.status_code}: {r.reason}')
+        time.sleep(RETRY_DELAY)
+    raise RuntimeError('Google Books API unavailable')
 
-    numFound = r.json()['totalItems']
-    if numFound == 0:
-        return 0, []
-    bookVolumes = processBookVolumes(r.json()['items'])
 
-    return numFound, bookVolumes
+def findBookVolumes(input: str) -> tuple[int, types.BookVolumes]:
+    try:
+        data = queryGoogleBooks(parseSearchTerms(input))
+        items = data.get('items')
+        # Address the empty case
+        if not items:
+            return 0, []
+        return data.get('totalItems', len(items)), processBookVolumes(items)
+    except RuntimeError as _:
+        return 0, []
 
 
 # Find books based on user input
